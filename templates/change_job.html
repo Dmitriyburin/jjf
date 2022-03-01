@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="h1-job">Edit a Job</h1>
+    <form action="" method="post" novalidate>
+        <div>
+            {{ form.csrf_token }}
+        </div>
+        <div class="form-outline form">
+            <label class="form-label" for="form1">Job Title</label>
+            {{ form.job(class='form-control', id='form1', type='text', value=job.job) }}
+            {% for error in form.job.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-outline form">
+            <label class="form-label" for="form2">Work Size</label>
+            {{ form.work_size(class='form-control', id='form2', type='text', value=job.work_size) }}
+            {% for error in form.work_size.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <div class="form-outline form">
+            <label class="form-label" for="form3">Collaborators</label>
+            {{ form.job(class='form-control', id='form3', type='text', value=job.collaborators) }}
+            {% for error in form.collaborators.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        
+        {{ form.submit(class='btn btn-primary form')}}
+    </form>
+</div>
+
+{% endblock %}
