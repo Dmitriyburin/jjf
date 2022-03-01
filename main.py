@@ -1,13 +1,11 @@
-from flask import Flask, render_template, redirect, request, abort, url_for
+from flask import Flask, render_template, redirect, request, abort, url_for, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-from forms.news import NewsForm
 from forms.user import RegisterForm, LoginForm
 from forms.job import JobForm
-from data.news import News
 from data.users import User
 from data.jobs import Jobs
-from data import db_session
+from data import db_session, jobs_api
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -21,6 +19,11 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -30,6 +33,7 @@ def logout():
 
 def main():
     db_session.global_init("db/lesson.db")
+    app.register_blueprint(jobs_api.blueprint)
     app.run(debug=True)
 
 
