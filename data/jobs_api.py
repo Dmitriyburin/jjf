@@ -40,10 +40,12 @@ def create_news():
 
     db_sess = db_session.create_session()
     exist_id = db_sess.query(Jobs).get(request.json['id'])
-    if exist_id is None:
+
+    if exist_id is not None:
         return jsonify({'error': 'Id already exists'})
 
     job = Jobs(
+        id=request.json['id'],
         team_leader=request.json['team_leader'],
         job=request.json['job'],
         work_size=request.json['work_size'],
