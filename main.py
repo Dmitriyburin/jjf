@@ -35,8 +35,49 @@ def main():
 
 @app.route("/")
 def index():
+    print(current_user.id if current_user.is_authenticated else None)
     url_style = url_for('static', filename='css/style.css')
     db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).all()
+    return render_template("index.html", jobs=jobs, url_style=url_style)
+
+
+@app.route("/change_job/<job_id>", methods=['GET', 'POST'])
+def change_job(job_id):
+    url_style = url_for('static', filename='css/style.css')
+
+    form = JobForm()
+
+    db_sess = db_session.create_session()
+    print(form.validate_on_submit())
+    if form.validate_on_submit()\
+            and (current_user.is_authenticated and current_user.id
+                 in [1, db_sess.query(Jobs).filter(Jobs.id == job_id).first().team_leader]):
+        job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+        job.job = form.job.data
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.is_finished = form.is_finished.data
+
+        db_sess.commit()
+        return redirect('/')
+
+    job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+    return render_template("change_job.html", url_style=url_style, form=form, job=job)
+
+
+@app.route("/delete_job/<job_id>", methods=['GET', 'POST'])
+def delete_job(job_id):
+    url_style = url_for('static', filename='css/style.css')
+
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated and current_user.id in\
+            [1, db_sess.query(Jobs).filter(Jobs.id == job_id).first().team_leader]:
+        job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+        db_sess.delete(job)
+        db_sess.commit()
+
+        return redirect('/')
     jobs = db_sess.query(Jobs).all()
     return render_template("index.html", jobs=jobs, url_style=url_style)
 
@@ -45,10 +86,12 @@ def index():
 def add_job():
     url_style = url_for('static', filename='css/style.css')
     form = JobForm()
+    print(form.validate_on_submit())
+
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         job = Jobs(
-            team_leader=form.team_leader.data,
+            team_leader=current_user.id,
             job=form.job.data,
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
@@ -60,7 +103,7 @@ def add_job():
 
         return redirect('/')
 
-    return render_template("add_job.html", url_style=url_style, form=form)
+    return render_template("add_change_job.html", url_style=url_style, form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])

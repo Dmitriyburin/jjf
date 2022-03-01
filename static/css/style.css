@@ -42,6 +42,16 @@ caption {
     justify-content: space-around;
 }
 
+.change-tools {
+    justify-content: left;
+}
+
+.change-tools>a {
+    margin-top: 10px;
+    margin-right: 5px;
+
+}
+
 .form {
     margin-top: 30px;
 }
